@@ -1,6 +1,6 @@
 use std::fmt;   // impl display
 
-#[derive(PartialEq, Clone)]
+#[derive(PartialEq)]
 pub struct Elem {   // each element file or dir
     name: String,
     pop_left: u32,
@@ -17,48 +17,31 @@ impl Elem {
             next: None,     // first element nothing after it
         }
     }
-
-    pub fn push(&mut self, element: Elem) {
-        match self.next {
-            Some(ref mut x) => x.push(element),
-            None =>{
-                self.next = Some(Box::new(element));
-            }
-        }
+    // PUSH 
+    pub fn push(self, mut element: Elem) -> Elem {
+        element.next = Some(Box::new(self));
+        element
     }
 
-    pub fn lastone(&self) -> Option<&Elem>{
+    //POP add a feature for passing var as arg and fill it with val
+    //                      CHAINE         POPED
+    pub fn pop(mut self) -> (Option<Elem> ,Option<Elem>) {
 
-        match self.next {
-            Some(ref x) => match x.next {
-                Some(_) => return x.lastone(),
-                None => return Some(self),
+        if self.pop_left > 1 {
+            // here pop_left will be decremented and we return the list without modification
+            self.pop_left -= 1;
+            return (Some(self), None);
+        } else {
+            // here self will be poped c
+            match self.next {
+                Some(x) =>{
+                    self.next = None;
+                    return (Some(*x), Some(self));
+                } 
+                None => return (None, Some(self)),
             }
-            None => {
-                return None
-            },
         }
-    }
 
-
-    // maybe take the owner ship instead of getting 1 ref & 1 ref mut
-    //
-    // pop the last elem in the list and replace the pointer of the one before it to none
-    pub fn pop(&mut self) -> Option<Elem> {
-        match self.lastone() {
-            // move x.next -> last et x.next=None puis renvoyer last
-            Some(x) => {
-                println!("The lastone: {}", x);
-                let last = x.next.clone();
-                x.next = None;
-                match last {
-                    Some(y) => return Some(*y),
-                    None => return None,
-                }
-            },
-            // case where there is only one element
-            None => None, 
-        }
     }
 
     pub fn chainprint(&self) {
@@ -74,6 +57,7 @@ impl Elem {
     }
 }
 
+
 // DISPLAY FOR ELEM
 
 impl fmt::Display for Elem {
@@ -84,9 +68,9 @@ impl fmt::Display for Elem {
 
 // ======================== QUEUE =======================
 
-/*
+
 pub struct Queue {
-    val: Option<Elem>,
+    pub val: Option<Elem>,
     life_time: u32,     // time in sec
 }
 
@@ -97,5 +81,39 @@ impl Queue{
             life_time,
         }
     }
+
+    pub fn push(&mut self, value: Elem){
+        match self.val.take() {
+            Some(x) => {
+                self.val =  Some(x.push(value));
+            },
+            None => {
+                self.val = Some(Elem::new(value.name, value.pop_left, value.time));
+            },
+        } 
+    }
+
+    pub fn pop(&mut self) -> Option<Elem> {
+        match self.val.take(){
+            Some(x) => {
+                let ret_elem: Option<Elem>;
+                (self.val, ret_elem) = x.pop();
+                ret_elem
+            },
+            None => None,
+        }
+    }
+
+    pub fn render(&self) {
+        match self.val {
+            Some(ref x) => {
+                x.chainprint();
+            },
+            None => {
+                println!("Nothing.")
+            }
+        }
+    }
+
 }
-*/
+
