@@ -1,73 +1,5 @@
-use std::fmt;   // impl display
-
-#[derive(PartialEq)]
-pub struct Elem {   // each element file or dir
-    name: String,
-    pop_left: u32,
-    time: u32,      // will be change later
-    next: Option<Box<Elem>>,    // chain list in here
-} 
-
-impl Elem {
-    pub fn new(name: String, pop_left: u32, time: u32) -> Self {
-        Elem {
-            name,
-            pop_left,
-            time,
-            next: None,     // first element nothing after it
-        }
-    }
-    // PUSH 
-    pub fn push(self, mut element: Elem) -> Elem {
-        element.next = Some(Box::new(self));
-        element
-    }
-
-    //POP add a feature for passing var as arg and fill it with val
-    //                      CHAINE         POPED
-    pub fn pop(mut self) -> (Option<Elem> ,Option<Elem>) {
-
-        if self.pop_left > 1 {
-            // here pop_left will be decremented and we return the list without modification
-            self.pop_left -= 1;
-            return (Some(self), None);
-        } else {
-            // here self will be poped c
-            match self.next {
-                Some(x) =>{
-                    self.next = None;
-                    return (Some(*x), Some(self));
-                } 
-                None => return (None, Some(self)),
-            }
-        }
-
-    }
-
-    pub fn chainprint(&self) {
-        match &self.next {
-            Some(x) => {
-                print!("{} -> ", self);
-                x.chainprint();
-            }
-            None => {
-                println!("{}", self);
-            }
-        } 
-    }
-}
-
-
-// DISPLAY FOR ELEM
-
-impl fmt::Display for Elem {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "({}, {}, {})", self.name, self.pop_left, self.time)
-    }
-}
-
+use crate::Elem;
 // ======================== QUEUE =======================
-
 
 pub struct Queue {
     pub val: Option<Elem>,
@@ -97,8 +29,35 @@ impl Queue{
         match self.val.take(){
             Some(x) => {
                 let ret_elem: Option<Elem>;
-                (self.val, ret_elem) = x.pop();
+                let ret_self: Option<Box<Elem>>;
+
+                (ret_self, ret_elem) = x.pop();
+
+                self.val = match ret_self {
+                    Some(x) => Some(*x),
+                    None => None,
+                };
+
                 ret_elem
+            },
+            None => None,
+        }
+    }
+
+    pub fn pop_index(&mut self, index: u32) -> Option<Elem> {
+        let len: u32 = self.length();
+        match self.val.take() {
+            Some(x) => {
+                let ret: Option<Elem>;
+                let ret_self: Option<Box<Elem>>;
+                (ret_self, ret) = x.pop_index(index, len, 0);
+
+                self.val = match ret_self {
+                    Some(x) => Some(*x),
+                    None => None,
+                };
+
+                ret
             },
             None => None,
         }
@@ -114,6 +73,12 @@ impl Queue{
             }
         }
     }
-
+    
+    pub fn length(&self) -> u32 {
+        match self.val {
+            Some(ref x) => return x.length(1),
+            None => return 0,
+        }
+    }
 }
 
