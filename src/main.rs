@@ -3,17 +3,16 @@ use queue::Queue;// nothing here
 mod elem;
 use elem::Elem;
 mod boss;
+use boss::Boss;
+mod error;
+use error::Errors;
 
 fn main() {
-    let mut temp = Queue::create(24*60);
-    temp.push(Elem::new(String::from("File1"), 2, 23*60));
-    temp.push(Elem::new(String::from("File2"), 2, 11*60));
-    temp.push(Elem::new(String::from("File3"), 2, 2*60));
-    temp.push(Elem::new(String::from("File4"), 2, 2*60));
-    temp.render();
-    println!("The removed value : {}", temp.pop_index(1).unwrap_or(Elem::new(String::from("NOTHING"), 0, 0)));
-    temp.render();
+    let mut boss_unit = Boss::init("/home/tim/test".to_string());
+    boss_unit.add_queue("queue".to_string(), Queue::create(60*24));
 
-    println!("the actual length is : {}", temp.length());
+    if let Err(error) = boss_unit.push_to("queue".to_string(), "/home/tim/test.txt".to_string(), "item.txt".to_string(), 3) {
+        println!("{}", error);
+    }
 }
 
