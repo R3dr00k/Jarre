@@ -6,13 +6,19 @@ mod boss;
 use boss::Boss;
 mod error;
 use error::Errors;
+use std::process;
 
 fn main() {
-    let mut boss_unit = Boss::init("/home/tim/test".to_string());
-    boss_unit.add_queue("queue".to_string(), Queue::create(60*24));
-
-    if let Err(error) = boss_unit.push_to("queue".to_string(), "/home/tim/test.txt".to_string(), "item.txt".to_string(), 3) {
-        println!("{}", error);
+    let boss_unit = Boss::init("/home/tim/test");
+    let mut boss = boss_unit.unwrap();
+    if let Err(x) = boss.add_queue("TEST_QUEUE", Queue::create(24)) {
+        println!("{}", x);
+        process::exit(1);
+    }
+    if let Err(x) = boss.add_queue("TEST_QUEUE", Queue::create(24)) {
+        println!("{}", x);
+        process::exit(1);
     }
 }
+
 

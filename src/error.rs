@@ -1,11 +1,15 @@
 use std::fmt;
 
+#[derive(Debug)]
 pub enum Errors {
     NoQueueError,
     NothingPopError,
-    DirInexistant(String),
+    InexistantDir,
     CopyFailed,
+    QueueAlreadyExist,
 }
+
+impl std::error::Error for Errors {}
 
 impl fmt::Display for Errors {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -16,11 +20,14 @@ impl fmt::Display for Errors {
             Errors::NothingPopError => {
                 write!(f, "[Error]:[NothingPopError] There is nothing to pop")
             },
-            Errors::DirInexistant(dir_name) => {
-                write!(f, "[Error]:[DirInexistant] Invalid directory path : {}.", dir_name)
+            Errors::InexistantDir => {
+                write!(f, "[Error]:[DirInexistant] Invalid directory path .")
             },
             Errors::CopyFailed => {
                 write!(f, "[Error]:[CopyFailed] copy failed")
+            },
+            Errors::QueueAlreadyExist => {
+                write!(f, "[Error]:[QueueAlreadyExist] the queue already exist !")
             },
             _ => {
                 write!(f, "[Error]:[NoFoundError] This error is not implemented yet!")

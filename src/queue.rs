@@ -20,7 +20,7 @@ impl Queue{
                 self.val =  Some(x.push(value));
             },
             None => {
-                self.val = Some(Elem::new(value.name, value.pop_left, value.time));
+                self.val = Some(value);
             },
         } 
     }

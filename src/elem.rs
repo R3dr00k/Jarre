@@ -8,9 +8,9 @@ pub struct Elem {   // each element file or dir
 } 
 
 impl Elem {
-    pub fn new(name: String, pop_left: u32, time: u32) -> Self {
+    pub fn new(name: &str, pop_left: u32, time: u32) -> Self {
         Elem {
-            name,
+            name: name.to_string(),
             pop_left,
             time,
             next: None,     // first element nothing after it
