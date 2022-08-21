@@ -7,6 +7,7 @@ pub enum Errors {
     InexistantDir,
     CopyFailed,
     QueueAlreadyExist,
+    QueueDoesntExist,
 }
 
 impl std::error::Error for Errors {}
