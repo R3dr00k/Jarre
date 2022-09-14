@@ -1,4 +1,4 @@
-use crate::Elem;
+use crate::{Elem, ElemIter};
 // ======================== QUEUE =======================
 
 pub struct Queue {
@@ -79,6 +79,16 @@ impl Queue{
             Some(ref x) => return x.length(1),
             None => return 0,
         }
+    }
+
+    // ITERATOR FUNC
+    pub fn to_iter(&self) -> ElemIter {
+        ElemIter {
+            prochain: match self.val {
+                Some(ref x) => Some(x),
+                None => None,
+            }
+        } 
     }
 }
 

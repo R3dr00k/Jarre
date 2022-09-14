@@ -119,3 +119,24 @@ impl fmt::Display for Elem {
         write!(f, "({}, {}, {})", self.name, self.pop_left, self.time)
     }
 }
+
+// ITERATOR
+pub struct ElemIter<'a> {
+    pub prochain: Option<&'a Elem>,
+}
+
+impl<'a> Iterator for ElemIter<'a>{
+    type Item = &'a Elem;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let ret = self.prochain;
+
+        self.prochain = match self.prochain {
+            Some(x) => {
+                x.next.as_deref()
+            },
+            None => None,
+        };
+        return ret;
+    }
+}

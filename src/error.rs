@@ -8,6 +8,7 @@ pub enum Errors {
     CopyFailed,
     QueueAlreadyExist,
     QueueDoesntExist,
+    StateFileDoesntExist,
 }
 
 impl std::error::Error for Errors {}
@@ -29,6 +30,9 @@ impl fmt::Display for Errors {
             },
             Errors::QueueAlreadyExist => {
                 write!(f, "[Error]:[QueueAlreadyExist] the queue already exist !")
+            },
+            Errors::StateFileDoesntExist => {
+                write!(f, "[Error]:[StateFileDoesntExist] state don't exsit we try to create one now !")
             },
             _ => {
                 write!(f, "[Error]:[NoFoundError] This error is not implemented yet!")

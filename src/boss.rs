@@ -1,8 +1,7 @@
-use crate::Queue;
-use crate::Elem;
-use crate::Errors;
+use crate::{Queue, Elem, Errors, CONFIG_DIR, JARRE_STATE};
 use std::collections::HashMap;
 use std::fs;
+use std::io::Read;
 use std::path::PathBuf;
 use std::error::Error;
 
@@ -25,12 +24,19 @@ impl Boss {
             return Err(Errors::InexistantDir)?;
         }
 
+        // if /var/lib/jarre doesn't exist create it
+        if !PathBuf::from("/var/lib/jarre").is_dir() {
+            fs::create_dir("/var/lib/jarre")?;
+        }
+
         Ok(Boss {
             base_dir,
             queues: HashMap::new(),
         })
     }
-pub fn add_queue(&mut self, name: &str, queue: Queue) -> Result<(), Box<dyn Error>>{ if self.queues.contains_key(name) { return Err(Errors::QueueAlreadyExist)?;
+    pub fn add_queue(&mut self, name: &str, queue: Queue) -> Result<(), Box<dyn Error>>{ 
+        if self.queues.contains_key(name) { 
+            return Err(Errors::QueueAlreadyExist)?;
         }
         println!("[+] queue is not already existing .");
 
@@ -42,6 +48,14 @@ pub fn add_queue(&mut self, name: &str, queue: Queue) -> Result<(), Box<dyn Erro
         
         self.queues.insert(name.to_string(), queue);
         Ok(())
+    }
+
+    pub fn get_queue(&self, name: &str) -> Option<&Queue> {
+        if self.queues.contains_key(name) {
+            return Some(&self.queues[name]);
+        } else {
+            return None
+        }
     }
 
     // push & pop
@@ -107,9 +121,58 @@ pub fn add_queue(&mut self, name: &str, queue: Queue) -> Result<(), Box<dyn Erro
             None => return Err(Errors::NoQueueError)?,
         }
     }
+    
+    // write info to /var/lib/jarre/state.jarre
+    // if /jarre dir doesn't exist create it , else replace state.jarre
+    // file format : 
+    pub fn export_as_file(&self) -> Result<(), Box<dyn Error>>{
+        let mut export_content = String::from(self.base_dir.to_string_lossy());
+        export_content.push('\n');  // big separator
+        // pour chaque clé : ajouter clé/sep/
+        for name in self.queues.keys() {
+            export_content.push_str(name);
+            export_content.push(':'); // moyen sep
 
-    pub fn export_as_file(){
-        unimplemented!();
+            for i in self.queues[name].to_iter() {
+                export_content.push_str(&format!("({},{},{})", i.name, i.pop_left, i.time));
+            }            
+
+            export_content.push('\n'); // moyen sep
+        }
+        println!("{}", export_content);
+
+        if !PathBuf::from(CONFIG_DIR).is_dir() {
+            fs::create_dir(CONFIG_DIR)?;
+        }
+        
+        fs::write(JARRE_STATE , export_content)?;
+
+        Ok(())
+    }
+
+    // if jarre state already exist try to read his content 
+    pub fn init_from_file() -> Result<Self, Box<dyn Error>> {
+        if !PathBuf::from(JARRE_STATE).is_file() {
+            return Err(Errors::StateFileDoesntExist)?;
+        } else {
+            // read file here and create boss with it 
+            let mut base_dir: PathBuf;
+            
+            let mut content = String::new();
+            let mut state_file = fs::File::open(JARRE_STATE).unwrap();
+            state_file.read_to_string(&mut content)?;
+           
+            let mut count: u16 = 0;
+            for line in content.lines() {
+                if count == 0 {
+                    base_dir = PathBuf::from(line);
+                    // here check if this path exist yes => cont no => err
+                } else {
+                    
+                }
+                count += 1;
+            }
+        }
     }
 }
 
