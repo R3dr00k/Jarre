@@ -18,6 +18,8 @@ fn main() {
         process::exit(1);
     }
 
+    println!("{}", boss);
+
     if let Err(x) = boss.push_to("TEST_QUEUE" , "result.jarre", 5, "/home/tim/test.txt"){
         println!("{}", x);
         process::exit(1);

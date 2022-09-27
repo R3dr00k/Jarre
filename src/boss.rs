@@ -14,7 +14,7 @@ impl Boss {
     pub fn init(dir: &str) -> Result<Self, Box<dyn Error>> {
         let mut base_dir = PathBuf::from(dir);
 
-        if base_dir.is_dir() {
+        if base_dir.is_dir() { 
             println!("[+] valid dir path");
             base_dir.push("jarre_files");
             // if dir already exist -> update() witch search for the info file to get them
@@ -125,19 +125,26 @@ impl Boss {
     // write info to /var/lib/jarre/state.jarre
     // if /jarre dir doesn't exist create it , else replace state.jarre
     // file format : 
+    /*
+     base_dir
+     queue_name:life_time:name,pop_left,time->
+     queue_name2:life_time:name,pop_left,time->
+     */
     pub fn export_as_file(&self) -> Result<(), Box<dyn Error>>{
-        let mut export_content = String::from(self.base_dir.to_string_lossy());
-        export_content.push('\n');  // big separator
+        let mut export_content = String::from(self.base_dir.to_str().unwrap());
         // pour chaque clé : ajouter clé/sep/
         for name in self.queues.keys() {
+            export_content.push('\n');  // big separator
             export_content.push_str(name);
+            export_content.push(':'); // moyen sep
+            {
+                export_content.push_str(&self.queues.get(name).unwrap().get_life_time().to_string())
+            }
             export_content.push(':'); // moyen sep
 
             for i in self.queues[name].to_iter() {
-                export_content.push_str(&format!("({},{},{})", i.name, i.pop_left, i.time));
+                export_content.push_str(&format!("{},{},{}->", i.name, i.pop_left, i.time));
             }            
-
-            export_content.push('\n'); // moyen sep
         }
         println!("{}", export_content);
 
@@ -152,26 +159,47 @@ impl Boss {
 
     // if jarre state already exist try to read his content 
     pub fn init_from_file() -> Result<Self, Box<dyn Error>> {
+        /*Read /var/lib/jarre/state.jarre and init boss with it */
+        // NEED TO ADD VERIFICATION DURING INITIALISATION (QUEUE NAME, ITEM NAME, THE REST CANNOT
+        // BE CHECKED)
+
         if !PathBuf::from(JARRE_STATE).is_file() {
             return Err(Errors::StateFileDoesntExist)?;
         } else {
             // read file here and create boss with it 
-            let mut base_dir: PathBuf;
+            let base_dir: PathBuf;
+            let mut queues: HashMap<String, Queue> = HashMap::new();
             
             let mut content = String::new();
-            let mut state_file = fs::File::open(JARRE_STATE).unwrap();
+            let mut state_file = fs::File::open(JARRE_STATE).unwrap(); // more check here
             state_file.read_to_string(&mut content)?;
            
-            let mut count: u16 = 0;
-            for line in content.lines() {
-                if count == 0 {
-                    base_dir = PathBuf::from(line);
-                    // here check if this path exist yes => cont no => err
-                } else {
-                    
-                }
-                count += 1;
+            let mut lines = content.lines();
+            let line = lines.next().unwrap();
+            base_dir = PathBuf::from(line);
+
+            for l in lines {
+                let v: Vec<&str> = l.split(":").collect();
+                if v.len() == 3 { // if there is no elem v[2] = "" need to handle that
+                    queues.insert(v[0].to_string(), Queue::create(v[1].parse::<u32>().unwrap()));
+
+                    let elems: Vec<&str> = v[2].split_terminator("->").collect();
+                    for elem in elems {
+                       let fields: Vec<&str> = elem.split(",").collect(); 
+                       if fields.len() == 3 {
+                           // si il y a les trois champs d'un élem on ajoute a la queue qu'on vient
+                           // de creer
+                           queues.get_mut(v[0]).unwrap().push(Elem::new(fields[0], fields[1].parse::<u32>().unwrap(), fields[2].parse::<u32>().unwrap()));
+                           println!("Init boss from file : elem push {:?} to {}", fields, v[0]);
+                       } // else wrong format
+                    }
+                } // else wrong format
             }
+            
+            Ok(Self{
+                base_dir,
+                queues,
+            }) 
         }
     }
 }

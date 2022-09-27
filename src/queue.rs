@@ -44,6 +44,10 @@ impl Queue{
         }
     }
 
+    pub fn get_life_time(&self) -> u32 {
+        self.life_time
+    }
+
     pub fn pop_index(&mut self, index: u32) -> Option<Elem> {
         let len: u32 = self.length();
         match self.val.take() {

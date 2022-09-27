@@ -1,0 +1,6 @@
+impl std::fmt for Boss
+impl init_from file to init
+
+Time Unit : another thread or proc who just delete file when their time is gone
+
+Log & Error Handling + function commentary (doc)
