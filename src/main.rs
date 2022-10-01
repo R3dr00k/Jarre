@@ -6,32 +6,23 @@ mod boss;
 use boss::Boss;
 mod error;
 use error::Errors;
-use std::process;
 
-static CONFIG_DIR: &str = "/var/lib/jarre";
-static JARRE_STATE: &str = "/var/lib/jarre/state.jarre";
+
+static CONFIG_DIR: &str = "/etc/jarre";
+static JARRE_CONFIG: &str = "/etc/jarre/jarre.conf";
 
 fn main() { 
-    let boss_unit = Boss::init("/home/tim/test"); 
-    let mut boss = boss_unit.unwrap(); if let Err(x) = boss.add_queue("TEST_QUEUE", Queue::create(24)) {
-        println!("{}", x);
-        process::exit(1);
+    let boss_unit = Boss::init(); 
+    let mut boss = boss_unit.unwrap();
+
+    if let Err(x) = boss.add_queue("File1", Queue::create(24)) {
+        eprintln!("errors:  {}", x);
     }
 
-    println!("{}", boss);
+    if let Err(x) = boss.add_queue("File2", Queue::create(24)) {
+        eprintln!("errors:  {}", x);
+    }
 
-    if let Err(x) = boss.push_to("TEST_QUEUE" , "result.jarre", 5, "/home/tim/test.txt"){
-        println!("{}", x);
-        process::exit(1);
-    }
-    if let Err(x) = boss.push_to("TEST_QUEUE" , "result2.jarre", 5, "/home/tim/test2.txt"){
-        println!("{}", x);
-        process::exit(1);
-    }
-    if let Err(x) = boss.export_as_file() {
-        println!("{}", x);
-        process::exit(1);
-    }
 }
 
 

@@ -9,6 +9,12 @@ pub enum Errors {
     QueueAlreadyExist,
     QueueDoesntExist,
     StateFileDoesntExist,
+    StateFileWrongFormat,
+    ConfigFileWrongFormat,
+    ConfigWrongKey,
+    NoConfigFile,
+    NoSuchDir,
+    NoSuchFile,
 }
 
 impl std::error::Error for Errors {}
@@ -34,6 +40,16 @@ impl fmt::Display for Errors {
             Errors::StateFileDoesntExist => {
                 write!(f, "[Error]:[StateFileDoesntExist] state don't exsit we try to create one now !")
             },
+            Errors::StateFileWrongFormat => {
+                write!(f, "[Error]:[StateFileWrongFormat] File : /var/lib/jarre/state.jarre have a wrong format !")
+            },
+            Errors::ConfigWrongKey => {
+                write!(f, "[Error]:[ConfigWrongKey] wrong key used in conf file.")
+            },
+            Errors::ConfigFileWrongFormat => {
+                write!(f, "[Error]:[ConfigFileWrongFormat] config file have a wrong format !")
+            },
+
             _ => {
                 write!(f, "[Error]:[NoFoundError] This error is not implemented yet!")
             }
