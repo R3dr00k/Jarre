@@ -19,10 +19,15 @@ fn main() {
         eprintln!("errors:  {}", x);
     }
 
-    if let Err(x) = boss.add_queue("File2", Queue::create(24)) {
-        eprintln!("errors:  {}", x);
+    if let Err(x) = boss.push_to("File1", "fichier1", 5, "/home/tim/test/file1.txt") {
+        eprintln!("errors: {}", x);
     }
 
+    if let Err(x) = boss.push_to("File1", "fichier2", 3, "/home/tim/test/file2.txt") {
+        eprintln!("errors: {}", x);
+    }
+
+    boss.print_queues();
 }
 
 

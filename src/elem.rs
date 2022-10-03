@@ -1,4 +1,5 @@
 use std::fmt;   // impl display
+use std::marker::Copy;
 
 pub struct Elem {   // each element file or dir
     pub name: String,
@@ -21,6 +22,15 @@ impl Elem {
         element.next = Some(Box::new(self));
         element
     }
+
+    pub fn push_proto(mut self, element: Elem) {
+        match self.next {
+            Some(x) => x.push_proto(element),
+            None => {
+                self.next = Some(Box::new(element));
+            }
+        } 
+    } 
 
     //POP add a feature for passing var as arg and fill it with val
     //                      CHAINE         POPED

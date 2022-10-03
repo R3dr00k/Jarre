@@ -1,5 +1,6 @@
 impl std::fmt for Boss
-impl init_from file to init
+
+change push -> proto_push (considere Cell<> fiels level for mut (queue.val))
 
 Time Unit : another thread or proc who just delete file when their time is gone
 
