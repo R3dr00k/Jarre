@@ -1,7 +1,14 @@
-impl std::fmt for Boss
+Add pop_by name instead of pop_index and add remove queue
 
-change push -> proto_push (considere Cell<> fiels level for mut (queue.val))
+add init_from file 
+
+test module
+
+Log & Error Handling + function commentary (doc)
+
++ debug level (like a shell)
 
 Time Unit : another thread or proc who just delete file when their time is gone
 
-Log & Error Handling + function commentary (doc)
+server socket etc .. 
+

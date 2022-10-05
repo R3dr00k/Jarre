@@ -60,7 +60,7 @@ impl Boss {
     // push need to take the path of the file then copy or move (function to create)
     // it to the base directory and create elem with name of the file 
     // (pop_left is needed to).
-    pub fn push_to(&self, q_name: &str, item_name: &str, num_of_pop: u32, pathfile: &str) -> Result<(), Box<dyn Error>> {
+    pub fn push_to(&mut self, q_name: &str, item_name: &str, num_of_pop: u32, pathfile: &str) -> Result<(), Box<dyn Error>> {
         if self.queues.contains_key(q_name) {
             println!("[+] La queue {} existe !", q_name);
             let mut dest_path = PathBuf::from(&self.config.base_dir);
@@ -72,7 +72,7 @@ impl Boss {
         } 
 
 
-        match self.queues.get(q_name) {
+        match self.queues.get_mut(q_name) {
             Some(x) => {
                 x.push(Elem::new(item_name, num_of_pop, 60*24));
                 println!("[+] elem added to queue");
@@ -88,9 +88,9 @@ impl Boss {
         }
     }
 
-    pub fn pop_to(&self, name: &str) -> Result<Elem, Box<dyn Error>> {
+    pub fn pop_to(&mut self, name: &str) -> Result<Elem, Box<dyn Error>> {
         println!("POP");
-        match self.queues.get(name) {
+        match self.queues.get_mut(name) {
             Some(x) => {
                 match x.pop() {
                     Some(y) => {
@@ -114,8 +114,8 @@ impl Boss {
         }
     }
 
-    pub fn pop_index_to(&self, name: &str, index: u32) -> Result<Elem, Box<dyn Error>> {
-        match self.queues.get(name) {
+    pub fn pop_index_to(&mut self, name: &str, index: u32) -> Result<Elem, Box<dyn Error>> {
+        match self.queues.get_mut(name) {
             Some(x) => {
                 match x.pop_index(index) {
                     Some(y) => {
@@ -213,7 +213,7 @@ impl Boss {
         
     }
 
-    pub fn print_queues(&self) {
+    pub fn print_queues(&mut self) {
         for name in self.queues.keys() {
             print!("{name} : ");
             match self.queues.get(name) {

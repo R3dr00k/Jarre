@@ -18,14 +18,11 @@ impl Elem {
         }
     }
     // PUSH 
-    pub fn push(self, mut element: Elem) -> Elem {
-        element.next = Some(Box::new(self));
-        element
-    }
-
-    pub fn push_proto(mut self, element: Elem) {
+    pub fn push(&mut self, element: Elem) {
         match self.next {
-            Some(x) => x.push_proto(element),
+            Some(ref mut x) => {
+                x.push(element);
+            }
             None => {
                 self.next = Some(Box::new(element));
             }
