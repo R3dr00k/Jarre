@@ -213,7 +213,7 @@ impl Boss {
         
     }
 
-    pub fn print_queues(&mut self) {
+    pub fn print_queues(&self) {
         for name in self.queues.keys() {
             print!("{name} : ");
             match self.queues.get(name) {
