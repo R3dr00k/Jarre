@@ -13,22 +13,7 @@ static JARRE_CONFIG: &str = "/etc/jarre/jarre.conf";
 
 fn main() { 
     let boss_unit = Boss::init(); 
-    let mut boss = boss_unit.unwrap();
-
-    if let Err(x) = boss.add_queue("File1", Queue::create(24)) {
-        eprintln!("errors:  {}", x);
-    }
-    if let Err(x) = boss.push_to("File1", "fichier1", 5, "/home/tim/test/file1.txt") {
-        eprintln!("errors: {}", x);
-    }
-
-    if let Err(x) = boss.push_to("File1", "fichier2", 3, "/home/tim/test/file2.txt") {
-        eprintln!("errors: {}", x);
-    }
-
-    if let Err(x) = boss.pop_to("File1") {
-        eprintln!("errors: {}", x);
-    }
+    let boss = boss_unit.unwrap();
 
     boss.print_queues();
 }

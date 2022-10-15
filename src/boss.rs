@@ -4,6 +4,7 @@ use std::fs;
 use std::path::PathBuf;
 use std::error::Error;
 use std::io::Write;
+use std::str::FromStr;
 
 mod config;
 use config::Config;
@@ -21,10 +22,11 @@ impl Boss {
         // else create new base_dir  by asking user
         
         let config = Config::setup()?;
+        let queues = Boss::update(&config.base_dir).unwrap();
 
         Ok(Boss {
             config,
-            queues: HashMap::new(),
+            queues,
         })
     }
     pub fn add_queue(&mut self, name: &str, queue: Queue) -> Result<(), Box<dyn Error>>{ 
@@ -44,6 +46,20 @@ impl Boss {
         
         self.queues.insert(name.to_string(), queue);
 
+
+        Ok(())
+    }
+        
+    pub fn remove_queue(&mut self, name: &str) -> Result<(), Box<dyn Error>>{
+        //remove changes here because if it is in the file and not in the hasmap you must delete it
+        Boss::remove_changes(PathBuf::from(&self.config.base_dir), name)?;
+        let mut queue_dir = PathBuf::from(&self.config.base_dir);
+        queue_dir.push(name);
+        fs::remove_dir(queue_dir)?;
+
+        if self.queues.contains_key(name) {
+            self.queues.remove(name);
+        } 
 
         Ok(())
     }
@@ -225,6 +241,63 @@ impl Boss {
                 }
             }
         }
+    }
+
+    fn update(dir: &str) -> Result<HashMap<String, Queue>, Box<dyn Error>> {
+        println!("Update !");
+        // si .state
+        let mut path = PathBuf::from(dir);
+        let mut hash: HashMap<String, Queue> = HashMap::new();
+        let mut queue_names: Vec<&str> = Vec::new();
+        path.push(".state");
+        println!("path {}", path.to_string_lossy());
+        if path.is_file() {
+            let content = fs::read_to_string(&path).unwrap();
+            for line in content.lines(){
+
+                let queue_info: Vec<&str> = line.split(':').collect();
+
+                let mut dir_path = path.clone();
+                dir_path.set_file_name(queue_info[0]);
+
+                //println!("dir path {}", dir_path.to_string_lossy());
+                if dir_path.is_dir() {
+                    println!("Add a queue {}", queue_info[0]);
+                    //let lifetime: u32 = FromStr::from_str(queue_info[1]).unwrap();
+                    hash.insert(String::from(queue_info[0]), Queue::create(lifetime));
+                    queue_names.push(queue_info[0]);
+                }
+            }
+
+            for name in queue_names{
+                match hash.get_mut(name) {
+                    Some(x) => {
+                        let mut state_path = path.clone();
+                        state_path.set_file_name(name);state_path.push(".state");
+                        //println!("queue state path : {}", state_path.to_string_lossy());
+                        if state_path.is_file() {
+                            let content = fs::read_to_string(&state_path).unwrap();
+                            for line in content.lines() {
+                                let elem_info: Vec<&str> = line.split(':').collect();
+                                let mut elem_path = state_path.clone();
+                                elem_path.set_file_name(elem_info[0]);
+                                //println!("elem path : {}", elem_path.to_string_lossy());
+                                if elem_path.is_file(){
+
+                                    //println!("Add an elem {} to queue {}", elem_info[0], name);
+                                    let pop_left: u32 = FromStr::from_str(elem_info[1]).unwrap();
+                                    let time: u32 = FromStr::from_str(elem_info[2]).unwrap();
+                                    x.push(Elem::new(elem_info[0], pop_left, time));
+                                }
+                            }
+                        }
+                    },
+                    None => return Err(Errors::NoQueueError)? 
+                }
+
+            }
+        }
+        return Ok(hash)
     }
 }
 

@@ -1,6 +1,4 @@
-Add pop_by name instead of pop_index and add remove queue
-
-add init_from file 
+Add pop_by name instead of pop_index
 
 test module
 
